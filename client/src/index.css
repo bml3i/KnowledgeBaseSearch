@@ -1,0 +1,271 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.login-form {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #357ab8;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e53935;
+  margin-top: 10px;
+}
+
+.search-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tag {
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.tag:hover {
+  background-color: #d0d0d0;
+}
+
+.tag-count {
+  margin-left: 5px;
+  font-size: 12px;
+  color: #666;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  min-height: 40px;
+}
+
+.selected-tag {
+  background-color: #4a90e2;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.remove-tag {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.records-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.record {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 15px 0;
+}
+
+.record:last-child {
+  border-bottom: none;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.record-summary {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.record-token {
+  font-family: monospace;
+  background-color: #f0f0f0;
+  padding: 2px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.record-token:hover {
+  background-color: #e0e0e0;
+}
+
+.record-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.record-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.record-tag {
+  background-color: #e0e0e0;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.record-content {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+.record-resources {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.record-resource {
+  color: #4a90e2;
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+.record-resource:hover {
+  text-decoration: underline;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 5px;
+}
+
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+}
+
+.page-button.active {
+  background-color: #4a90e2;
+  color: white;
+  border-color: #4a90e2;
+}
+
+.page-button:hover:not(.active) {
+  background-color: #f0f0f0;
+}
+
+.status-active {
+  color: #4caf50;
+}
+
+.status-inactive {
+  color: #f44336;
+}
+
+.logout-button {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.logout-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}

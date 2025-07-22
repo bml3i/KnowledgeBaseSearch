@@ -8,7 +8,7 @@ const { authenticateToken } = require('./middleware/auth');
 const { initializeDatabase } = require('./db/init');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.SERVER_PORT || 3000;
 
 // Middleware
 app.use(cors());

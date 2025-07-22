@@ -11,14 +11,24 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
 
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [selectedTags]); // 当选中的标签变化时重新获取可用标签
 
   const fetchTags = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const response = await axios.get('/api/tags', getAuthHeaders());
+      // 构建请求参数，包含已选择的标签
+      const params = {};
+      if (selectedTags.length > 0) {
+        params.selectedTags = selectedTags.join(',');
+      }
+      
+      const response = await axios.get('/api/tags', {
+        ...getAuthHeaders(),
+        params
+      });
+      
       setAvailableTags(response.data);
     } catch (error) {
       console.error('Error fetching tags:', error);
@@ -28,10 +38,7 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
     }
   };
 
-  // Filter out already selected tags
-  const filteredTags = availableTags.filter(
-    tag => !selectedTags.includes(tag.name)
-  );
+  // 可用标签列表已经由后端过滤，不需要再次过滤已选择的标签
 
   if (isLoading) {
     return <div>Loading tags...</div>;
@@ -62,8 +69,8 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
       
       <h4>Available Tags</h4>
       <div className="tag-list">
-        {filteredTags.length > 0 ? (
-          filteredTags.map(tag => (
+        {availableTags.length > 0 ? (
+          availableTags.map(tag => (
             <div
               key={tag.name}
               className="tag"

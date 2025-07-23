@@ -62,11 +62,6 @@ cp .env.example .env
 4. 创建并初始化数据库
 
 ```bash
-# 在PostgreSQL中创建数据库
-psql -U postgres
-CREATE DATABASE knowledge_base;
-\q
-
 # 数据库结构和初始数据将在应用首次启动时自动创建
 ```
 

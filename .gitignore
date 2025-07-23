@@ -2,7 +2,8 @@
 node_modules/
 
 # Environment variables
-.env
+# only ignore the .env under the root folder
+/.env
 
 # Build files
 client/build/

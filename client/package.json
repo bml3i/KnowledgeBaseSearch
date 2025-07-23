@@ -14,7 +14,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "PORT=${CLIENT_PORT:-3001} react-scripts start",
+    "start": "dotenv -e ../.env cross-env PORT=$CLIENT_PORT react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -36,5 +36,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv-cli": "^9.0.0"
   }
 }

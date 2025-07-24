@@ -4,7 +4,7 @@ import { AuthContext } from '../contexts/AuthContext';
 
 const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
   const [availableTags, setAvailableTags] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingTags, setIsLoadingTags] = useState(true);
   const [error, setError] = useState(null);
   
   const { getAuthHeaders } = useContext(AuthContext);
@@ -15,7 +15,7 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
 
   const fetchTags = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingTags(true);
       setError(null);
       
       // 构建请求参数，包含已选择的标签
@@ -34,19 +34,11 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
       console.error('Error fetching tags:', error);
       setError('Failed to load tags. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsLoadingTags(false);
     }
   };
 
   // 可用标签列表已经由后端过滤，不需要再次过滤已选择的标签
-
-  if (isLoading) {
-    return <div>Loading tags...</div>;
-  }
-
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
 
   return (
     <div className="search-container">
@@ -69,7 +61,11 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
       
       <h4>Available Tags</h4>
       <div className="tag-list">
-        {availableTags.length > 0 ? (
+        {error ? (
+          <div className="error">{error}</div>
+        ) : isLoadingTags ? (
+          <div>Loading tags...</div>
+        ) : availableTags.length > 0 ? (
           availableTags.map(tag => (
             <div
               key={tag.name}

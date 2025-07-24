@@ -35,6 +35,26 @@ const RecordItem = ({ record }) => {
     }
   };
 
+  const parseMarkdownLink = (text) => {
+    // 匹配markdown链接格式 [文本](链接)
+    const markdownLinkRegex = /^\[([^\]]+)\]\(([^\)]+)\)$/;
+    const match = text.match(markdownLinkRegex);
+    
+    if (match) {
+      return {
+        isMarkdownLink: true,
+        text: match[1],
+        url: match[2]
+      };
+    }
+    
+    return {
+      isMarkdownLink: false,
+      text: text,
+      url: text
+    };
+  };
+
   return (
     <div className="record">
       <div className="record-header">
@@ -67,23 +87,25 @@ const RecordItem = ({ record }) => {
         <div className="record-resources">
           <strong>Resources:</strong>
           {resources.map((resource, index) => {
-            const isUrl = isValidUrl(resource);
-            return isUrl ? (
+            const parsed = parseMarkdownLink(resource);
+            const isClickable = parsed.isMarkdownLink || isValidUrl(parsed.url);
+            
+            return isClickable ? (
               <a 
                 key={index} 
-                href={resource} 
+                href={parsed.url} 
                 className="record-resource"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {resource}
+                {parsed.text}
               </a>
             ) : (
               <span 
                 key={index} 
                 className="record-resource record-resource-text"
               >
-                {resource}
+                {parsed.text}
               </span>
             );
           })}

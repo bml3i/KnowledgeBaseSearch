@@ -15,6 +15,10 @@ const Home = () => {
     setSelectedTags(selectedTags.filter(t => t !== tag));
   };
 
+  const handleClearAllTags = () => {
+    setSelectedTags([]);
+  };
+
   return (
     <div className="container">
       <div className="header">
@@ -28,6 +32,7 @@ const Home = () => {
         selectedTags={selectedTags}
         onTagSelect={handleTagSelect}
         onTagRemove={handleTagRemove}
+        onClearAll={handleClearAllTags}
       />
       
       <RecordList selectedTags={selectedTags} />

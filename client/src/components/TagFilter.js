@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 
-const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
+const TagFilter = ({ selectedTags, onTagSelect, onTagRemove, onClearAll }) => {
   const [availableTags, setAvailableTags] = useState([]);
   const [isLoadingTags, setIsLoadingTags] = useState(true);
   const [error, setError] = useState(null);
@@ -42,7 +42,14 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove }) => {
 
   return (
     <div className="search-container">
-      <h3>Filter by Tags</h3>
+      <div className="filter-header">
+        <h3>Filter by Tags</h3>
+        {selectedTags.length >= 2 && (
+          <button className="clear-all-button" onClick={onClearAll}>
+            Remove ✕
+          </button>
+        )}
+      </div>
       
       <div className="selected-tags">
         {selectedTags.length > 0 ? (

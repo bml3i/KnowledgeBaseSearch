@@ -227,6 +227,14 @@ button:disabled {
   text-decoration: underline;
 }
 
+.record-resource-text {
+  cursor: default;
+}
+
+.record-resource-text:hover {
+  text-decoration: none;
+}
+
 .pagination {
   display: flex;
   justify-content: center;

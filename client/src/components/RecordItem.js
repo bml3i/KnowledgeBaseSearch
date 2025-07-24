@@ -26,6 +26,15 @@ const RecordItem = ({ record }) => {
     return date.toLocaleString();
   };
 
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
   return (
     <div className="record">
       <div className="record-header">
@@ -57,17 +66,27 @@ const RecordItem = ({ record }) => {
       {resources && resources.length > 0 && (
         <div className="record-resources">
           <strong>Resources:</strong>
-          {resources.map((resource, index) => (
-            <a 
-              key={index} 
-              href={resource} 
-              className="record-resource"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {resource}
-            </a>
-          ))}
+          {resources.map((resource, index) => {
+            const isUrl = isValidUrl(resource);
+            return isUrl ? (
+              <a 
+                key={index} 
+                href={resource} 
+                className="record-resource"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {resource}
+              </a>
+            ) : (
+              <span 
+                key={index} 
+                className="record-resource record-resource-text"
+              >
+                {resource}
+              </span>
+            );
+          })}
         </div>
       )}
     </div>

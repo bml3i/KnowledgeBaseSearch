@@ -5,7 +5,7 @@ const db = require('../db');
 // Get all tags with count, optionally filtered by selected tags
 router.get('/tags', async (req, res) => {
   try {
-    const { selectedTags } = req.query;
+    const { selectedTags, keyword } = req.query;
     let query;
     let params = [];
     
@@ -13,28 +13,66 @@ router.get('/tags', async (req, res) => {
       // 将选中的标签字符串转换为数组
       const tagsArray = Array.isArray(selectedTags) ? selectedTags : selectedTags.split(',');
       
-      // 查询与已选标签共同出现在记录中的其他标签
+      if (keyword && keyword.trim()) {
+        // 同时有标签和关键词过滤
+        query = `
+          WITH filtered_records AS (
+            SELECT r.id
+            FROM kb_records r
+            JOIN kb_record_tags rt ON r.id = rt.record_id
+            JOIN kb_tags t ON rt.tag_id = t.id
+            WHERE r.is_active = TRUE 
+              AND t.name = ANY($1::varchar[])
+              AND (LOWER(r.summary) LIKE LOWER($3) OR LOWER(r.content) LIKE LOWER($3))
+            GROUP BY r.id
+            HAVING COUNT(DISTINCT t.name) = $2
+          )
+          SELECT t.name, COUNT(DISTINCT rt.record_id) as count
+          FROM kb_tags t
+          JOIN kb_record_tags rt ON t.id = rt.tag_id
+          JOIN filtered_records fr ON rt.record_id = fr.id
+          WHERE t.name <> ALL($1::varchar[])
+          GROUP BY t.name
+          ORDER BY t.name
+        `;
+        params = [tagsArray, tagsArray.length, `%${keyword.trim()}%`];
+      } else {
+        // 只有标签过滤
+        query = `
+          WITH filtered_records AS (
+            SELECT r.id
+            FROM kb_records r
+            JOIN kb_record_tags rt ON r.id = rt.record_id
+            JOIN kb_tags t ON rt.tag_id = t.id
+            WHERE r.is_active = TRUE AND t.name = ANY($1::varchar[])
+            GROUP BY r.id
+            HAVING COUNT(DISTINCT t.name) = $2
+          )
+          SELECT t.name, COUNT(DISTINCT rt.record_id) as count
+          FROM kb_tags t
+          JOIN kb_record_tags rt ON t.id = rt.tag_id
+          JOIN filtered_records fr ON rt.record_id = fr.id
+          WHERE t.name <> ALL($1::varchar[])
+          GROUP BY t.name
+          ORDER BY t.name
+        `;
+        params = [tagsArray, tagsArray.length];
+      }
+    } else if (keyword && keyword.trim()) {
+      // 只有关键词过滤，没有标签
       query = `
-        WITH filtered_records AS (
-          SELECT r.id
-          FROM kb_records r
-          JOIN kb_record_tags rt ON r.id = rt.record_id
-          JOIN kb_tags t ON rt.tag_id = t.id
-          WHERE r.is_active = TRUE AND t.name = ANY($1::varchar[])
-          GROUP BY r.id
-          HAVING COUNT(DISTINCT t.name) = $2
-        )
         SELECT t.name, COUNT(DISTINCT rt.record_id) as count
         FROM kb_tags t
         JOIN kb_record_tags rt ON t.id = rt.tag_id
-        JOIN filtered_records fr ON rt.record_id = fr.id
-        WHERE t.name <> ALL($1::varchar[])
+        JOIN kb_records r ON rt.record_id = r.id
+        WHERE r.is_active = TRUE 
+          AND (LOWER(r.summary) LIKE LOWER($1) OR LOWER(r.content) LIKE LOWER($1))
         GROUP BY t.name
         ORDER BY t.name
       `;
-      params = [tagsArray, tagsArray.length];
+      params = [`%${keyword.trim()}%`];
     } else {
-      // 如果没有选中的标签，返回所有标签及其计数
+      // 如果没有选中的标签和关键词，返回所有标签及其计数
       query = `
         SELECT t.name, COUNT(rt.record_id) as count
         FROM kb_tags t
@@ -56,16 +94,26 @@ router.get('/tags', async (req, res) => {
 // Get knowledge base records filtered by tags
 router.get('/records', async (req, res) => {
   try {
-    const { tags, page = 1, limit = process.env.ITEMS_PER_PAGE || 10 } = req.query;
+    const { tags, keyword, page = 1, limit = process.env.ITEMS_PER_PAGE || 10 } = req.query;
     const offset = (page - 1) * limit;
     
     let query;
     let params = [limit, offset];
     
-    if (tags && tags.length > 0) {
-      // Convert tags string to array if needed
+    if (tags && tags.length > 0 && keyword && keyword.trim()) {
+      // 同时有标签和关键词过滤
       const tagsArray = Array.isArray(tags) ? tags : tags.split(',');
-      
+      query = `
+        SELECT *
+        FROM v_active_kb_search
+        WHERE tags @> $3::varchar[]
+          AND (LOWER(summary) LIKE LOWER($4) OR LOWER(content) LIKE LOWER($4))
+        LIMIT $1 OFFSET $2
+      `;
+      params.push(tagsArray, `%${keyword.trim()}%`);
+    } else if (tags && tags.length > 0) {
+      // 只有标签过滤
+      const tagsArray = Array.isArray(tags) ? tags : tags.split(',');
       query = `
         SELECT *
         FROM v_active_kb_search
@@ -73,7 +121,17 @@ router.get('/records', async (req, res) => {
         LIMIT $1 OFFSET $2
       `;
       params.push(tagsArray);
+    } else if (keyword && keyword.trim()) {
+      // 只有关键词过滤
+      query = `
+        SELECT *
+        FROM v_active_kb_search
+        WHERE LOWER(summary) LIKE LOWER($3) OR LOWER(content) LIKE LOWER($3)
+        LIMIT $1 OFFSET $2
+      `;
+      params.push(`%${keyword.trim()}%`);
     } else {
+      // 没有过滤条件
       query = `
         SELECT *
         FROM v_active_kb_search
@@ -88,7 +146,18 @@ router.get('/records', async (req, res) => {
     let countQuery;
     let countParams = [];
     
-    if (tags && tags.length > 0) {
+    if (tags && tags.length > 0 && keyword && keyword.trim()) {
+      // 同时有标签和关键词过滤
+      const tagsArray = Array.isArray(tags) ? tags : tags.split(',');
+      countQuery = `
+        SELECT COUNT(*)
+        FROM v_active_kb_search
+        WHERE tags @> $1::varchar[]
+          AND (LOWER(summary) LIKE LOWER($2) OR LOWER(content) LIKE LOWER($2))
+      `;
+      countParams.push(tagsArray, `%${keyword.trim()}%`);
+    } else if (tags && tags.length > 0) {
+      // 只有标签过滤
       const tagsArray = Array.isArray(tags) ? tags : tags.split(',');
       countQuery = `
         SELECT COUNT(*)
@@ -96,7 +165,16 @@ router.get('/records', async (req, res) => {
         WHERE tags @> $1::varchar[]
       `;
       countParams.push(tagsArray);
+    } else if (keyword && keyword.trim()) {
+      // 只有关键词过滤
+      countQuery = `
+        SELECT COUNT(*)
+        FROM v_active_kb_search
+        WHERE LOWER(summary) LIKE LOWER($1) OR LOWER(content) LIKE LOWER($1)
+      `;
+      countParams.push(`%${keyword.trim()}%`);
     } else {
+      // 没有过滤条件
       countQuery = `
         SELECT COUNT(*)
         FROM v_active_kb_search

@@ -4,7 +4,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import RecordItem from './RecordItem';
 import Pagination from './Pagination';
 
-const RecordList = ({ selectedTags }) => {
+const RecordList = ({ selectedTags, keyword }) => {
   const [records, setRecords] = useState([]);
   const [pagination, setPagination] = useState({
     total: 0,
@@ -19,7 +19,7 @@ const RecordList = ({ selectedTags }) => {
 
   useEffect(() => {
     fetchRecords(1);
-  }, [selectedTags]);
+  }, [selectedTags, keyword]);
 
   const fetchRecords = async (page) => {
     try {
@@ -29,6 +29,9 @@ const RecordList = ({ selectedTags }) => {
       const params = { page };
       if (selectedTags.length > 0) {
         params.tags = selectedTags.join(',');
+      }
+      if (keyword && keyword.trim()) {
+        params.keyword = keyword.trim();
       }
       
       const response = await axios.get('/api/records', {

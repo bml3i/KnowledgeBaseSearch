@@ -5,6 +5,7 @@ import RecordList from './RecordList';
 
 const Home = () => {
   const [selectedTags, setSelectedTags] = useState([]);
+  const [keyword, setKeyword] = useState('');
   const { logout } = useContext(AuthContext);
 
   const handleTagSelect = (tag) => {
@@ -19,6 +20,10 @@ const Home = () => {
     setSelectedTags([]);
   };
 
+  const handleKeywordChange = (newKeyword) => {
+    setKeyword(newKeyword);
+  };
+
   return (
     <div className="container">
       <div className="header">
@@ -30,12 +35,14 @@ const Home = () => {
       
       <TagFilter
         selectedTags={selectedTags}
+        keyword={keyword}
         onTagSelect={handleTagSelect}
         onTagRemove={handleTagRemove}
         onClearAll={handleClearAllTags}
+        onKeywordChange={handleKeywordChange}
       />
       
-      <RecordList selectedTags={selectedTags} />
+      <RecordList selectedTags={selectedTags} keyword={keyword} />
     </div>
   );
 };

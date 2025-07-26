@@ -73,7 +73,7 @@ const RecordList = ({ selectedTags, keyword }) => {
 
   return (
     <div className="records-container">
-      <h3>Knowledge Base Records</h3>
+      {/* <h3>Knowledge Base Records</h3> */}
       
       {records.map(record => (
         <RecordItem key={record.id} record={record} />

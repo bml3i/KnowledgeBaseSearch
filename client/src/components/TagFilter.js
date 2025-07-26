@@ -42,27 +42,26 @@ const TagFilter = ({ selectedTags, onTagSelect, onTagRemove, onClearAll }) => {
 
   return (
     <div className="search-container">
-      <div className="filter-header">
-        <h3>Filter by Tags</h3>
+      <div className="filter-header-row">
+        <h3 className="filter-title">Filter by Tags</h3>
+        <div className="selected-tags">
+          {selectedTags.length > 0 ? (
+            selectedTags.map(tag => (
+              <div key={tag} className="selected-tag">
+                {tag}
+                <span className="remove-tag" onClick={() => onTagRemove(tag)}>
+                  ✕
+                </span>
+              </div>
+            ))
+          ) : (
+            <div style={{ color: '#999' }}>No tags selected</div>
+          )}
+        </div>
         {selectedTags.length >= 2 && (
           <button className="clear-all-button" onClick={onClearAll}>
             Remove ✕
           </button>
-        )}
-      </div>
-      
-      <div className="selected-tags">
-        {selectedTags.length > 0 ? (
-          selectedTags.map(tag => (
-            <div key={tag} className="selected-tag">
-              {tag}
-              <span className="remove-tag" onClick={() => onTagRemove(tag)}>
-                ✕
-              </span>
-            </div>
-          ))
-        ) : (
-          <div style={{ color: '#999' }}>No tags selected</div>
         )}
       </div>
       

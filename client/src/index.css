@@ -87,15 +87,17 @@ button:disabled {
   margin-bottom: 20px;
 }
 
-.filter-header {
+.filter-header-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 15px;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
-.filter-header h3 {
+.filter-title {
   margin: 0;
+  flex-shrink: 0;
 }
 
 .clear-all-button {
@@ -145,11 +147,12 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
-  padding: 10px;
+  padding: 8px 12px;
   background-color: #f9f9f9;
   border-radius: 5px;
-  min-height: 40px;
+  min-height: 36px;
+  flex: 1;
+  align-items: center;
 }
 
 .selected-tag {

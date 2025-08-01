@@ -285,6 +285,8 @@ button:disabled {
   padding: 2px 5px;
   border-radius: 3px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
 }
 
 .record-token:hover {

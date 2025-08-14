@@ -33,6 +33,7 @@ router.get('/tags', async (req, res) => {
           JOIN filtered_records fr ON rt.record_id = fr.id
           WHERE t.name <> ALL($1::varchar[])
           GROUP BY t.name
+          HAVING COUNT(DISTINCT rt.record_id) > 0
           ORDER BY t.name
         `;
         params = [tagsArray, tagsArray.length, `%${keyword.trim()}%`];
@@ -54,6 +55,7 @@ router.get('/tags', async (req, res) => {
           JOIN filtered_records fr ON rt.record_id = fr.id
           WHERE t.name <> ALL($1::varchar[])
           GROUP BY t.name
+          HAVING COUNT(DISTINCT rt.record_id) > 0
           ORDER BY t.name
         `;
         params = [tagsArray, tagsArray.length];
@@ -68,6 +70,7 @@ router.get('/tags', async (req, res) => {
         WHERE r.is_active = TRUE 
           AND (LOWER(r.summary) LIKE LOWER($1) OR LOWER(r.content) LIKE LOWER($1))
         GROUP BY t.name
+        HAVING COUNT(DISTINCT rt.record_id) > 0
         ORDER BY t.name
       `;
       params = [`%${keyword.trim()}%`];
@@ -79,6 +82,7 @@ router.get('/tags', async (req, res) => {
         LEFT JOIN kb_record_tags rt ON t.id = rt.tag_id
         LEFT JOIN kb_records r ON rt.record_id = r.id AND r.is_active = TRUE
         GROUP BY t.name
+        HAVING COUNT(rt.record_id) > 0
         ORDER BY t.name
       `;
     }

@@ -1,13 +1,33 @@
 const fs = require('fs');
 const path = require('path');
-const { pool } = require('./index');
+const { Pool } = require('pg');
+
+function createPoolFromEnv() {
+  const config = {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT, 10) || 5432,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+  };
+
+  if (process.env.DB_SSL_MODE === 'require') {
+    config.ssl = {
+      require: true,
+      rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+    };
+  }
+
+  return new Pool(config);
+}
 
 async function initializeDatabase() {
+  const pool = createPoolFromEnv();
   try {
     console.log('Initializing database...');
     
     // 检查数据库表是否已存在
-    const tableExists = await checkIfTableExists('kb_records');
+    const tableExists = await checkIfTableExists(pool, 'kb_records');
     
     if (!tableExists) {
       // 如果表不存在，则创建表结构和初始数据
@@ -27,11 +47,13 @@ async function initializeDatabase() {
   } catch (error) {
     console.error('Error initializing database:', error);
     throw error;
+  } finally {
+    await pool.end();
   }
 }
 
 // 检查表是否存在
-async function checkIfTableExists(tableName) {
+async function checkIfTableExists(pool, tableName) {
   try {
     const result = await pool.query(
       `SELECT EXISTS (

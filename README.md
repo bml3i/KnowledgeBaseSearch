@@ -1,99 +1,93 @@
 # Knowledge Base Search
 
-一个基于标签进行搜索、过滤的个人知识库查询系统。
+一个基于标签进行搜索、过滤的个人知识库查询系统。当前项目采用 Docker Compose 进行开发运行，目录已重构为 `client/`、`server/`、`db/` 三部分。
 
 ## 功能特点
 
 - 基于标签的知识库条目过滤
 - 简单的用户认证
 - 响应式单页面应用
-- PostgreSQL数据库存储
+- PostgreSQL 数据库存储
 - 分页显示结果
 
 ## 技术栈
 
 - 后端: Node.js, Express
-- 前端: React
+- 前端: React (Create React App)
 - 数据库: PostgreSQL
 - 认证: JWT
 
-## 端口配置
+## 项目结构
 
-- 服务端默认使用 3000 端口，可通过 `.env` 文件中的 `SERVER_PORT` 环境变量配置
-- 客户端固定使用 3001 端口
+- `client/`: 前端 React 应用（开发模式运行于 3000）
+- `server/`: 后端 Node/Express 服务（运行于 5000）
+- `db/`: 数据库初始化脚本（`init.sql` 由 Postgres 容器自动执行）
+- `docker-compose.yml`: 服务编排（db/adminer/server/client）
 
-## 安装与设置
+## 端口与服务
+
+- 前端: `http://localhost:3000`
+- 后端: `http://localhost:5000`
+- Postgres: `localhost:5432`（容器内服务名 `db`）
+- Adminer: `http://localhost:8080`
+
+## 快速开始（Docker Compose）
 
 ### 前提条件
 
-- Node.js (v14+)
-- PostgreSQL
+- Docker 与 Docker Compose
 
-### 安装步骤
-
-1. 克隆仓库
+### 启动
 
 ```bash
-git clone https://github.com/yourusername/KnowledgeBaseSearch.git
-cd KnowledgeBaseSearch
+docker compose up -d
 ```
 
-2. 安装依赖
+- 首次启动将自动构建镜像并初始化数据库。
+- 查看日志：`docker compose logs -f` 或分别查看某服务，如 `docker compose logs client`。
+
+### 访问
+
+- 前端：`http://localhost:3000`
+- 后端示例：`http://localhost:5000/api/tags`
+- Adminer：`http://localhost:8080`（System: PostgreSQL, Server: db, User: postgres, Password: postgres, Database: kb_db）
+
+### 关闭
 
 ```bash
-# 安装后端依赖
-npm install
-
-# 安装前端依赖
-cd client
-npm install
-cd ..
+docker compose down
 ```
 
-3. 配置环境变量
+清除数据卷（会重置数据库并重新执行 `init.sql`）：
 
 ```bash
-cp .env.example .env
-# 编辑.env文件，设置数据库连接信息和认证信息
+docker compose down -v
 ```
 
-4. 创建并初始化数据库
+## 开发配置说明
 
-```bash
-# 数据库结构和初始数据将在应用首次启动时自动创建
-```
+- 代码绑定挂载（bind mount）：`./client:/app`、`./server:/app`，确保代码改动即时生效。
+- 依赖缓存（named volume）：`client_node_modules:/app/node_modules`、`server_node_modules:/app/node_modules`，避免每次启动都安装依赖。
+- 客户端端口与绑定：在 Compose 中显式设置 `PORT=3000`、`HOST=0.0.0.0`，对应 `ports: "3000:3000"`。
+- 代理：`client/src/setupProxy.js` 通过容器内主机名 `server:5000` 代理到后端。
+- Windows 文件系统下若热更新不稳定，可在 `client` 服务添加 `CHOKIDAR_USEPOLLING=true`（可选）。
 
-5. 启动应用
+## 切换到远程数据库（可选）
 
-```bash
-# 同时启动后端和前端（开发模式）
-npm run dev:all
+在 `docker-compose.yml` 的 `server.environment` 中调整：
 
-# 或者分别启动
+- `DB_HOST`: 远程数据库主机
+- `DB_PORT`: 端口（例如 5432）
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- 如使用托管服务（例如 Supabase），可根据需要设置 `DB_SSL_MODE=require` 等参数
 
-# 仅启动后端（开发模式）
-npm run dev
+如仅使用远程数据库，可将本地 `db` 与 `adminer` 服务移除或暂时注释。
 
-# 仅启动前端
-npm run client
-```
+## 常见问题
 
-6. 构建前端（生产环境）
-
-```bash
-cd client
-npm run build
-cd ..
-npm start
-```
-
-## 使用说明
-
-1. 访问应用 (http://localhost:3001)
-2. 使用环境变量中设置的用户名和密码登录
-3. 在标签过滤区域选择标签以过滤知识库条目
-4. 点击已选择的标签可以移除它
-5. 点击Echo Token可以复制到剪贴板
+- 客户端未在 3000 端口启动：确保 `client/.env` 为 `PORT=3000`，并在 Compose 中设置 `PORT` 与 `HOST` 环境变量。
+- 数据库初始化失败：执行 `docker compose down -v` 清理数据卷后重新 `docker compose up -d`，查看 `db/init.sql` 是否语法正确。
+- 查看服务状态：`docker ps -a` 与 `docker compose logs <service>`。
 
 ## 数据库结构
 

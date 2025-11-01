@@ -43,7 +43,7 @@ GROUP BY r.id;
 -- 4.2. 聚合视图02（方便一次性拿到 tags 数组, 客户端查询时使用） 
 CREATE OR REPLACE VIEW v_active_kb_search AS 
 SELECT r.id, 
-       r.echo_token, 
+
        r.summary, 
        r.content, 
        r.resources, 
@@ -74,8 +74,7 @@ INSERT INTO kb_records (echo_token, summary, content, resources, tags_cache, is_
 ('token1', 'JavaScript基础知识', 'JavaScript是一种高级的、解释型的编程语言。', '{"https://developer.mozilla.org/"}', '{"javascript", "frontend"}', true),
 ('token2', 'Python数据分析', 'Python是数据分析的强大工具，结合pandas库可以高效处理数据。', '{"https://pandas.pydata.org/"}', '{"python", "database"}', true),
 ('token3', 'RESTful API设计', 'REST是一种软件架构风格，用于设计网络应用程序。', '{"https://restfulapi.net/"}', '{"api", "backend"}', true),
-('token4', '数据库优化技巧', '索引是提高数据库查询性能的关键。', '{"https://www.postgresql.org/docs/"}', '{"database", "backend"}', true),
-('token5', '前端安全最佳实践', 'XSS和CSRF是常见的前端安全威胁。', '{"https://owasp.org/"}', '{"frontend", "security"}', true);
+('token4', '数据库优化技巧', '索引是提高数据库查询性能的关键。', '{"https://www.postgresql.org/docs/"}', '{"database", "backend"}', true);
 
 -- 7. 建立记录和标签的关联
 DO $$ 
@@ -100,6 +99,5 @@ BEGIN
     (1, js_id), (1, fe_id),
     (2, py_id), (2, db_id),
     (3, api_id), (3, be_id),
-    (4, db_id), (4, be_id),
-    (5, fe_id), (5, sec_id);
-END $$;
+    (4, db_id), (4, be_id);
+END $$ LANGUAGE plpgsql;

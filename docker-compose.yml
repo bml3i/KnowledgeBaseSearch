@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17.6
+    container_name: kb_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kb_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  adminer:
+    image: adminer:latest
+    container_name: kb_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  server:
+    build: ./server
+    container_name: kb_server
+    environment:
+      SERVER_PORT: 5000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: kb_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      # 可选：连接远程 Supabase 时可以调整 SSL 设置
+      # DB_SSL_MODE: require
+      # DB_SSL_REJECT_UNAUTHORIZED: "false"
+      JWT_SECRET: change_me_please
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: password
+      ITEMS_PER_PAGE: 10
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - server_node_modules:/app/node_modules
+    depends_on:
+      - db
+
+  client:
+    build: ./client
+    container_name: kb_client
+    environment:
+      SERVER_HOST: server
+      SERVER_PORT: 5000
+      PORT: 3000
+      HOST: 0.0.0.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - client_node_modules:/app/node_modules
+    depends_on:
+      - server
+
+volumes:
+  db_data:
+  client_node_modules:
+  server_node_modules:

@@ -43,13 +43,13 @@ GROUP BY r.id;
 -- 4.2. 聚合视图02（方便一次性拿到 tags 数组, 客户端查询时使用） 
 CREATE OR REPLACE VIEW v_active_kb_search AS 
 SELECT r.id, 
-
+       r.echo_token,
        r.summary, 
        r.content, 
        r.resources, 
        r.is_active, 
        r.created_at, 
-       COALESCE(ARRAY_AGG(t.name ORDER BY t.name), ARRAY[]::TEXT[]) AS tags 
+        COALESCE(ARRAY_AGG(t.name ORDER BY t.name), ARRAY[]::TEXT[]) AS tags 
 FROM kb_records r 
 LEFT JOIN kb_record_tags rt ON rt.record_id = r.id 
 LEFT JOIN kb_tags t        ON t.id = rt.tag_id 

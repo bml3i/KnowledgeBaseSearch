@@ -25,25 +25,16 @@ services:
   server:
     build: ./server
     container_name: kb_server
+    env_file:
+      - .env
     environment:
       SERVER_PORT: 5000
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: kb_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      # 可选：连接远程 Supabase 时可以调整 SSL 设置
-      # DB_SSL_MODE: require
-      # DB_SSL_REJECT_UNAUTHORIZED: "false"
-      JWT_SECRET: change_me_please
-      ADMIN_USERNAME: admin
-      ADMIN_PASSWORD: password
-      ITEMS_PER_PAGE: 10
     ports:
       - "5000:5000"
     volumes:
       - ./server:/app
       - server_node_modules:/app/node_modules
+      - ./db:/db
     depends_on:
       - db
 

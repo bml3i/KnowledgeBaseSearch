@@ -12,7 +12,7 @@
 
 ## 技术栈
 
-- 后端: Node.js, Express
+- 后端: Node.js, Express, bcryptjs
 - 前端: React (Create React App)
 - 数据库: PostgreSQL
 - 认证: JWT
@@ -23,6 +23,7 @@
 - `server/`: 后端 Node/Express 服务（运行于 5000）
 - `db/`: 数据库初始化脚本（`init.sql` 由 Postgres 容器自动执行）
 - `docker-compose.yml`: 服务编排（db/adminer/server/client）
+- `env.example`: 环境变量模板文件
 
 ## 端口与服务
 
@@ -36,6 +37,31 @@
 ### 前提条件
 
 - Docker 与 Docker Compose
+
+### 环境配置
+
+1. 复制环境变量模板文件：
+   ```bash
+   cp env.example .env
+   ```
+
+2. 编辑 `.env` 文件，根据需要修改配置：
+   ```bash
+   # 服务器配置
+   ITEMS_PER_PAGE=5
+   
+   # 数据库配置（Docker Compose 默认值）
+   DB_HOST=db
+   DB_PORT=5432
+   DB_NAME=kb_db
+   DB_USER=postgres
+   DB_PASSWORD=postgres
+   
+   # 认证配置（请修改为安全值）
+   JWT_SECRET=your-strong-random-secret-here
+   ADMIN_USERNAME=admin
+   ADMIN_PASSWORD=update-to-your-secure-password
+   ```
 
 ### 启动
 
@@ -74,20 +100,30 @@ docker compose down -v
 
 ## 切换到远程数据库（可选）
 
-在 `docker-compose.yml` 的 `server.environment` 中调整：
+在 `.env` 文件中调整数据库配置：
 
-- `DB_HOST`: 远程数据库主机
-- `DB_PORT`: 端口（例如 5432）
-- `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-- 如使用托管服务（例如 Supabase），可根据需要设置 `DB_SSL_MODE=require` 等参数
+```bash
+# 远程数据库配置示例
+DB_HOST=your-host.com
+DB_PORT=your-db-port
+DB_NAME=your_database_name
+DB_USER=your_username
+DB_PASSWORD=your_password
+
+# 如使用托管服务（例如 Supabase），可能需要 SSL 配置
+DB_SSL_MODE=require
+DB_SSL_REJECT_UNAUTHORIZED=false
+```
 
 如仅使用远程数据库，可将本地 `db` 与 `adminer` 服务移除或暂时注释。
 
 ## 常见问题
 
-- 客户端未在 3000 端口启动：确保 `client/.env` 为 `PORT=3000`，并在 Compose 中设置 `PORT` 与 `HOST` 环境变量。
-- 数据库初始化失败：执行 `docker compose down -v` 清理数据卷后重新 `docker compose up -d`，查看 `db/init.sql` 是否语法正确。
-- 查看服务状态：`docker ps -a` 与 `docker compose logs <service>`。
+- **环境变量未生效**：确保已从 `env.example` 复制创建 `.env` 文件，并重启服务 `docker compose down && docker compose up -d`。
+- **客户端未在 3000 端口启动**：确保 `client/.env` 为 `PORT=3000`，并在 Compose 中设置 `PORT` 与 `HOST` 环境变量。
+- **数据库初始化失败**：执行 `docker compose down -v` 清理数据卷后重新 `docker compose up -d`，查看 `db/init.sql` 是否语法正确。
+- **依赖安装问题**：如修改了 `package.json`，需要重新安装依赖到命名卷：`docker compose run --rm server npm install --omit=dev`。
+- **查看服务状态**：`docker ps -a` 与 `docker compose logs <service>`。
 
 ## 数据库结构
 

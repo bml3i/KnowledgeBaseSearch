@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Login route
 router.post('/login', async (req, res) => {
@@ -13,8 +13,20 @@ router.post('/login', async (req, res) => {
     
     // Compare password with hashed password or plain text for simplicity
     // In a production environment, you should always use hashed passwords
-    const validPassword = await bcrypt.compare(password, process.env.ADMIN_PASSWORD) || 
-                          password === process.env.ADMIN_PASSWORD;
+    let validPassword = false;
+    const envPass = process.env.ADMIN_PASSWORD;
+    try {
+      if (envPass && typeof envPass === 'string' && envPass.startsWith('$2')) {
+        // If ADMIN_PASSWORD is a bcrypt hash, compare with bcryptjs
+        validPassword = bcrypt.compareSync(password, envPass);
+      } else {
+        // Plain-text fallback
+        validPassword = password === envPass;
+      }
+    } catch (e) {
+      // Conservative fallback: only allow when plain-text matches
+      validPassword = password === envPass;
+    }
     
     if (!validUsername || !validPassword) {
       return res.status(401).json({ message: 'Invalid username or password' });

@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm install --omit=dev
 
 COPY . .
